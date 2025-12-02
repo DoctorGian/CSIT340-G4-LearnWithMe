@@ -1,44 +1,48 @@
 import React, { useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import './App.css';
 import Login from './components/Login/Login';
 import Register from './components/Register/Register';
 import Dashboard from './components/Dashboard/Dashboard';
 
 function App() {
-  const [currentPage, setCurrentPage] = useState('landing');
   const [currentUser, setCurrentUser] = useState(null);
-
-  // Navigation handler
-  const navigateTo = (page) => {
-    setCurrentPage(page);
-  };
 
   // Handle successful login
   const handleLogin = (userData) => {
     setCurrentUser(userData);
-    setCurrentPage('dashboard');
   };
 
   // Handle logout
   const handleLogout = () => {
     setCurrentUser(null);
-    setCurrentPage('landing');
   };
 
-  // Render different pages based on state
-  if (currentPage === 'login') {
-    return <Login onNavigate={navigateTo} onLogin={handleLogin} />;
-  }
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/login" element={<Login onLogin={handleLogin} />} />
+        <Route path="/register" element={<Register />} />
+        <Route 
+          path="/dashboard/*" 
+          element={
+            currentUser ? (
+              <Dashboard user={currentUser} onLogout={handleLogout} />
+            ) : (
+              <Navigate to="/login" replace />
+            )
+          } 
+        />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </Router>
+  );
+}
 
-  if (currentPage === 'register') {
-    return <Register onNavigate={navigateTo} />;
-  }
+function LandingPage() {
+  const navigate = useNavigate();
 
-  if (currentPage === 'dashboard') {
-    return <Dashboard user={currentUser} onLogout={handleLogout} />;
-  }
-
-  // Landing Page
   return (
     <div className="App">
       {/* Navigation Bar */}
@@ -53,13 +57,13 @@ function App() {
             <a href="#testimonials" className="nav-link">Testimonials</a>
             <button 
               className="nav-btn login-btn" 
-              onClick={() => navigateTo('login')}
+              onClick={() => navigate('/login')}
             >
               Login
             </button>
             <button 
               className="nav-btn signup-btn" 
-              onClick={() => navigateTo('register')}
+              onClick={() => navigate('/register')}
             >
               Sign Up
             </button>
@@ -81,7 +85,7 @@ function App() {
           <div className="hero-buttons">
             <button 
               className="cta-primary" 
-              onClick={() => navigateTo('register')}
+              onClick={() => navigate('/register')}
             >
               Get Started Free
             </button>
@@ -222,7 +226,7 @@ function App() {
           <p>Join over 10,000 students who are already studying smarter with LearnWithMe</p>
           <button 
             className="cta-primary large" 
-            onClick={() => navigateTo('register')}
+            onClick={() => navigate('/register')}
           >
             Start Learning for Free
           </button>

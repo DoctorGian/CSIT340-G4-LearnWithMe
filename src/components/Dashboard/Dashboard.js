@@ -1,20 +1,26 @@
 import React, { useState } from 'react';
+import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import './Dashboard.css';
 import Decks from '../Decks/Decks';
 import Progress from '../Progress/Progress';
 
 const Dashboard = ({ user, onLogout }) => {
-  const [currentView, setCurrentView] = useState('decks');
+  const navigate = useNavigate();
+  const location = useLocation();
   const [selectedDeck, setSelectedDeck] = useState(null);
 
   const handleDeckSelect = (deck) => {
     setSelectedDeck(deck);
-    setCurrentView('flashcards');
+    navigate('/dashboard/flashcards');
   };
 
   const handleBackToDecks = () => {
     setSelectedDeck(null);
-    setCurrentView('decks');
+    navigate('/dashboard/decks');
+  };
+
+  const isActive = (path) => {
+    return location.pathname.includes(path);
   };
 
   return (
@@ -30,25 +36,31 @@ const Dashboard = ({ user, onLogout }) => {
 
         <nav className="sidebar-nav">
           <button 
-            className={`nav-item ${currentView === 'decks' || currentView === 'flashcards' ? 'active' : ''}`}
-            onClick={handleBackToDecks}
+            className={`nav-item ${isActive('/dashboard/decks') || isActive('/dashboard/flashcards') ? 'active' : ''}`}
+            onClick={() => navigate('/dashboard/decks')}
           >
-            <span className="nav-icon"></span>
+            <span className="nav-icon">📚</span>
             <span>My Decks</span>
           </button>
           <button 
-            className={`nav-item ${currentView === 'progress' ? 'active' : ''}`}
-            onClick={() => setCurrentView('progress')}
+            className={`nav-item ${isActive('/dashboard/progress') ? 'active' : ''}`}
+            onClick={() => navigate('/dashboard/progress')}
           >
-            <span className="nav-icon"></span>
+            <span className="nav-icon">📊</span>
             <span>Progress</span>
           </button>
-          <button className="nav-item">
-            <span className="nav-icon"></span>
+          <button 
+            className="nav-item"
+            onClick={() => navigate('/dashboard/favorites')}
+          >
+            <span className="nav-icon">⭐</span>
             <span>Favorites</span>
           </button>
-          <button className="nav-item">
-            <span className="nav-icon"></span>
+          <button 
+            className="nav-item"
+            onClick={() => navigate('/dashboard/settings')}
+          >
+            <span className="nav-icon">⚙️</span>
             <span>Settings</span>
           </button>
         </nav>
@@ -71,16 +83,43 @@ const Dashboard = ({ user, onLogout }) => {
 
       {/* Main Content */}
       <main className="main-content">
-        {currentView === 'progress' ? (
-          <Progress user={user} onNavigate={setCurrentView} />
-        ) : (
-          <Decks 
-            onDeckSelect={handleDeckSelect}
-            selectedDeck={selectedDeck}
-            currentView={currentView}
-            onBackToDecks={handleBackToDecks}
+        <Routes>
+          <Route path="/" element={<Navigate to="/dashboard/decks" replace />} />
+          <Route 
+            path="/decks" 
+            element={
+              <Decks 
+                onDeckSelect={handleDeckSelect}
+                selectedDeck={null}
+                currentView="decks"
+                onBackToDecks={handleBackToDecks}
+              />
+            } 
           />
-        )}
+          <Route 
+            path="/flashcards" 
+            element={
+              <Decks 
+                onDeckSelect={handleDeckSelect}
+                selectedDeck={selectedDeck}
+                currentView="flashcards"
+                onBackToDecks={handleBackToDecks}
+              />
+            } 
+          />
+          <Route 
+            path="/progress" 
+            element={<Progress user={user} onNavigate={(path) => navigate(`/dashboard/${path}`)} />} 
+          />
+          <Route 
+            path="/favorites" 
+            element={<div style={{padding: '2rem'}}><h2>Favorites - Coming Soon</h2></div>} 
+          />
+          <Route 
+            path="/settings" 
+            element={<div style={{padding: '2rem'}}><h2>Settings - Coming Soon</h2></div>} 
+          />
+        </Routes>
       </main>
     </div>
   );

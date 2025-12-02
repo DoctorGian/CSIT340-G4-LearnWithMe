@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './Login.css';
 
-const Login = ({ onNavigate, onLogin }) => {
+const Login = ({ onLogin }) => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -27,6 +29,7 @@ const Login = ({ onNavigate, onLogin }) => {
     };
     
     onLogin(userData);
+    navigate('/dashboard');
   };
 
   return (
@@ -92,11 +95,11 @@ const Login = ({ onNavigate, onLogin }) => {
           </button>
           
           <p className="signup-link">
-            Don't have an account? <a href="#register" onClick={(e) => { e.preventDefault(); onNavigate('register'); }}>Sign Up</a>
+            Don't have an account? <a href="#register" onClick={(e) => { e.preventDefault(); navigate('/register'); }}>Sign Up</a>
           </p>
         </form>
 
-        <button className="back-to-home" onClick={() => onNavigate('landing')}>
+        <button className="back-to-home" onClick={() => navigate('/')}>
           ← Back to Home
         </button>
       </div>
